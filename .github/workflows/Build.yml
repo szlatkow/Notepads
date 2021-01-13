@@ -1,6 +1,6 @@
 name:  Build
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
 
@@ -25,7 +25,16 @@ jobs:
       with:
         fetch-depth: 50
 
-    - name: Cache SonarCloud packages
+    - if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      name: Bump release version and create release tag
+      id: tag_generator
+      uses: mathieudutour/github-tag-action@v5
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        default_bump: false
+
+    - if: github.event_name == 'push'
+      name: Cache SonarCloud packages
       id: cache_sonar_packages
       uses: actions/cache@v1
       with:
@@ -33,7 +42,8 @@ jobs:
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
-    - name: Cache SonarCloud scanner
+    - if: github.event_name == 'push'
+      name: Cache SonarCloud scanner
       id: cache-sonar-scanner
       uses: actions/cache@v1
       with:
@@ -41,22 +51,24 @@ jobs:
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
 
-    - name: Install SonarCloud scanner
+    - if: github.event_name == 'push' && steps.cache_sonar_scanner.outputs.cache-hit != 'true'
+      name: Install SonarCloud scanner
       id: install_sonar_scanner
-      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
       shell: powershell
       run: |
         New-Item -Path .\.sonar\scanner -ItemType Directory
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-    - name: Lowercase string generator
+    - if: github.event_name == 'push'
+      name: Lowercase string generator
       id: lowercase_string_gen
       shell: powershell
       run: |
         $LOWERCASE_OWNER = "${{ github.repository_owner }}".ToLower()
         echo "::set-output name=owner_name::$LOWERCASE_OWNER"
 
-    - name: Initialize SonarCloud scanner
+    - if: github.event_name == 'push'
+      name: Initialize SonarCloud scanner
       id: init_sonar_scanner
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
