@@ -51,7 +51,7 @@ jobs:
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
 
-    - if: github.event_name == 'push' && steps.cache_sonar_scanner.outputs.cache-hit != 'true'
+    - if: github.event_name == 'push' && steps.cache-sonar-scanner.outputs.cache-hit != 'true'
       name: Install SonarCloud scanner
       id: install_sonar_scanner
       shell: powershell
