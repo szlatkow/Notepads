@@ -55,6 +55,13 @@ jobs:
         New-Item -Path .\.sonar\scanner -ItemType Directory
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
+    - name: Lowercase string generator
+      id: lowercase_string_gen
+      shell: powershell
+      run: |
+        $LOWERCASE_OWNER = "${{ github.repository_owner }}".ToLower()
+        echo "::set-output name=owner_name::$LOWERCASE_OWNER"
+
     - name: Initialize SonarCloud scanner
       id: init_sonar_scanner
       env:
