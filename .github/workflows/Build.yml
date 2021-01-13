@@ -24,12 +24,6 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 50
-    - name: Activate TestSpace tool
-      id: testspace_tool
-      uses: testspace-com/setup-testspace@v1
-      with:
-        domain: ${{ github.repository_owner }}
-        token: ${{ secrets.TESTSPACE_TOKEN }}
 
     - name: Cache SonarCloud packages
       id: cache_sonar_packages
