@@ -84,7 +84,7 @@ jobs:
 
     - name: Build
       id: build_app
-      run: msbuild $env:Solution_Path /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageSigningEnabled=false /p:AppxBundlePlatforms="$env:Appx_Bundle_Platforms"
+      run: msbuild $env:Solution_Name /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:BuildMode /p:AppxBundle=$env:AppxBundle /p:AppxPackageSigningEnabled=false /p:AppxBundlePlatforms="$env:Appx_Bundle_Platforms"
       env:
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86|x64
