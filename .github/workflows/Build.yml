@@ -1,6 +1,6 @@
 name:  Build
 
-on: [push, pull_request, workflow_dispatch]
+on: [push, pull_request]
 
 jobs:
 
@@ -15,80 +15,21 @@ jobs:
 
     runs-on: windows-latest
     steps:
-
-    - name: Set up JDK 11
-      id: Setup_JDK 
-      uses: actions/setup-java@v1
+    - name: Checkout
+      uses: actions/checkout@v2
       with:
-        java-version: 1.11
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 50
-
-    - if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      name: Bump release version and create release tag
-      id: tag_generator
-      uses: mathieudutour/github-tag-action@v5
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        default_bump: false
-
-    - if: github.event_name == 'push'
-      name: Cache SonarCloud packages
-      id: cache_sonar_packages
-      uses: actions/cache@v1
-      with:
-        path: ~\sonar\cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-
-    - if: github.event_name == 'push'
-      name: Cache SonarCloud scanner
-      id: cache_sonar_scanner
-      uses: actions/cache@v1
-      with:
-        path: .\.sonar\scanner
-        key: ${{ runner.os }}-sonar-scanner
-        restore-keys: ${{ runner.os }}-sonar-scanner
-
-    - if: github.event_name == 'push' && steps.cache_sonar_scanner.outputs.cache-hit != 'true'
-      name: Install SonarCloud scanner
-      id: install_sonar_scanner
-      shell: powershell
-      run: |
-        New-Item -Path .\.sonar\scanner -ItemType Directory
-        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-
-    - if: github.event_name == 'push'
-      name: Lowercase string generator
-      id: lowercase_string_gen
-      shell: powershell
-      run: |
-        $LOWERCASE_OWNER = "${{ github.repository_owner }}".ToLower()
-        echo "::set-output name=owner_name::$LOWERCASE_OWNER"
-
-    - if: github.event_name == 'push'
-      name: Initialize SonarCloud scanner
-      id: init_sonar_scanner
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      shell: powershell
-      run: .\.sonar\scanner\dotnet-sonarscanner begin /k:"${{ github.repository_owner }}_${{ github.event.repository.name }}" /o:"${{ steps.lowercase_string_gen.outputs.owner_name }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+        fetch-depth: 0
 
     # Add MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild
-      id: setup_msbuild
       uses: microsoft/setup-msbuild@v1
 
     - name: Restore the application
-      id: restore_application
       run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
     - name: Build
-      id: build_app
       run: |
         msbuild $env:Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:AppxPackageSigningEnabled=false /p:AppxBundlePlatforms="$env:Appx_Bundle_Platforms"
       env:
@@ -96,11 +37,3 @@ jobs:
         Appx_Bundle_Platforms: x86|x64
         Appx_Package_Build_Mode: StoreUpload
         Configuration: ${{ matrix.configuration }}
-
-    - name: Send SonarCloud results
-      id: send_sonar_results
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      shell: powershell
-      run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
