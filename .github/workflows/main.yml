@@ -43,6 +43,7 @@ jobs:
 
     - name: Install SonarCloud scanner
       id: install_sonar_scanner
+      if: steps.cache_sonar_scanner.outputs.cache-hit != 'true'
       shell: powershell
       run: |
         New-Item -Path .\.sonar\scanner -ItemType Directory
