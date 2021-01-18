@@ -2,7 +2,25 @@
 
 * after merging the PR, the first run of the main workflow will not complete successfully, because it requires specific setup explained in this documentation
 
-## 1. Set up Dependabot
+## *. Run workflow manually
+
+Once you've set up all the steps above correctly, you should be able to successfully complete a manual execution of the main workflow "Notepads CI/CD Pipeline".
+
+  1. Go to GitHub project -> "Actions" tab
+
+  2. From the "Workflows" list on the left, click on "Notepads CI/CD Pipeline"
+
+  3. On the right, next to the "This workflow has a workflow_dispatch event trigger" label, click on the "Run workflow" dropdown, make sure the default branch is selected (if not manually changed, should be main or master) in the "Use workflow from" dropdown and click the "Run workflow" button
+
+![Actions_workflow_dispatch](/ScreenShots/CI-CD_DOCUMENTATION/Actions_workflow_dispatch.png)
+
+  4. Once the workflow run has completed successfully, move on to the next step of the documentation
+
+NOTE: **screenshots are only exemplary**
+
+<br>
+
+## *. Set up Dependabot
 
 Dependabot is a GitHub native security tool that goes through the dependencies in your project and creates alerts, and PRs with updates when a new and/or non-vulnerable version is found.
 
@@ -48,50 +66,24 @@ NOTE: **screenshots are only exemplary**
 
 <br>
 
-## 2. Set up SonarCloud 
-  
-SonarCloud is a cloud-based code quality and security service.
+## *. CodeQL
 
-1. Go to https://sonarcloud.io/
+CodeQL is GitHub's own industry-leading semantic code analysis engine. CodeQL requires no setup, because it comes fully pre-configured by us. 
 
-2. Click the "Log in" button and create a new account or connect with GitHub account (recommended).
+To activate it and see its results, only a push commit or a merge of a PR to the default branch of your repository, is required. 
 
-3. At the top right corner click the "+" sign.
+We've also configured CodeQL to run on schedule, so every day at 8:00AM UTC, it automatically test the code.
 
-4. From the dropdown select "Create new Organization".
+- you can see the results here at **Security** tab -> **Code scanning alerts** -> **CodeQL**:
 
-5. Click the button "Choose an organization on Github".
+![CodeQL_results](/ScreenShots/CI-CD_DOCUMENTATION/CodeQL_results.png)
 
-6. Select an account for your organization setup.
+- on the page of each result, you can see an explanation of what the problem is and also one or more solutions:
 
-7. On **Repository Access** select "Only select repositories" and select your project and click the "Save" button.
+![CodeQL_alert_page](/ScreenShots/CI-CD_DOCUMENTATION/CodeQL_alert_page.png)
 
-8. On the "Create organization page" don't change your **Key** and click "Continue".
+NOTE: **screenshots are only exemplary**
 
-9. Select the Free plan then click the "Create Organization" button to finalize the creation of your Organization.
+#
 
-10. From the dropdown select "Analyze new project".
-
-11. Select the "Bogus" project and click "Set Up" button at the top right corner.
-
-12. Under the "Choose another analysis method" sign click the "With Github Actions" sign. 
-
-13. Copy the Name of the token and the Value and use them on step "16".
-
-14. To Create a secret on GitHub click the fast forward button **Settings>Secrets** .
- 
-15. Then click "New Repository secret"
-
-16. Enter the "Name" and the "Value" and click **Add Secret**.
-
-17. No further steps are required for this setup.
-
-18. Run manually your workflow one time to deliver the code to SonarCloud.
-
-19. In order to set a "Quality gate" follow the next steps.
-
-19. After the run go to the Project page.
-
-20. Click on the button "Set new code definition" and select  "Previous version".
-
-21. Manually run the workflow and there you have set a Quality gate.
+Built with ❤ by [Pipeline Foundation](http://pipeline.foundation)

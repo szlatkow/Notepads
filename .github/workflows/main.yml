@@ -25,8 +25,7 @@ jobs:
       with:
         fetch-depth: 50
 
-    - if: github.event_name == 'push'
-      name: Cache SonarCloud packages
+    - name: Cache SonarCloud packages
       id: cache_sonar_packages
       uses: actions/cache@v1
       with:
@@ -34,8 +33,7 @@ jobs:
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
-    - if: github.event_name == 'push'
-      name: Cache SonarCloud scanner
+    - name: Cache SonarCloud scanner
       id: cache_sonar_scanner
       uses: actions/cache@v1
       with:
@@ -43,27 +41,24 @@ jobs:
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
 
-    - if: github.event_name == 'push' && steps.cache_sonar_scanner.outputs.cache-hit != 'true'
-      name: Install SonarCloud scanner
+    - name: Install SonarCloud scanner
       id: install_sonar_scanner
       shell: powershell
       run: |
         New-Item -Path .\.sonar\scanner -ItemType Directory
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-    - if: github.event_name == 'push'
-      name: Lowercase string generator
+    - name: Lowercase string generator
       id: lowercase_string_gen
       shell: powershell
       run: |
         $LOWERCASE_OWNER = "${{ github.repository_owner }}".ToLower()
         echo "::set-output name=owner_name::$LOWERCASE_OWNER"
 
-    - if: github.event_name == 'push'
-      name: Initialize SonarCloud scanner
+    - name: Initialize SonarCloud scanner
       id: init_sonar_scanner
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN}}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: powershell
       run: .\.sonar\scanner\dotnet-sonarscanner begin /k:"${{ github.repository_owner }}_${{ github.event.repository.name }}" /o:"${{ steps.lowercase_string_gen.outputs.owner_name }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
@@ -92,7 +87,7 @@ jobs:
     - name: Send SonarCloud results
       id: send_sonar_results
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: powershell
       run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
