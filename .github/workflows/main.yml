@@ -21,42 +21,48 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.11
+ 
     - uses: actions/checkout@v2
+      id: actions_checkout
       with:
         fetch-depth: 50
 
-    - name: Cache SonarCloud packages
+    - if: github.event_name == 'push'
+      name: Cache SonarCloud packages
       id: cache_sonar_packages
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: ~\sonar\cache
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
-    - name: Cache SonarCloud scanner
+    - if: github.event_name == 'push'
+      name: Cache SonarCloud scanner
       id: cache_sonar_scanner
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: .\.sonar\scanner
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
 
-    - name: Install SonarCloud scanner
+    - if: github.event_name == 'push' && steps.cache_sonar_scanner.outputs.cache-hit != 'true'
+      name: Install SonarCloud scanner
       id: install_sonar_scanner
-      if: steps.cache_sonar_scanner.outputs.cache-hit != 'true'
       shell: powershell
       run: |
         New-Item -Path .\.sonar\scanner -ItemType Directory
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 
-    - name: Lowercase string generator
+    - if: github.event_name == 'push'
+      name: Lowercase string generator
       id: lowercase_string_gen
       shell: powershell
       run: |
         $LOWERCASE_OWNER = "${{ github.repository_owner }}".ToLower()
         echo "::set-output name=owner_name::$LOWERCASE_OWNER"
 
-    - name: Initialize SonarCloud scanner
+    - if: github.event_name == 'push'
+      name: Initialize SonarCloud scanner
       id: init_sonar_scanner
       env:
         GITHUB_TOKEN: ${{ secrets.REPO_TOKEN}}  # Needed to get PR information, if any
@@ -77,15 +83,15 @@ jobs:
 
     - name: Build
       id: build_app
-      run: |
-        msbuild $env:Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:AppxPackageSigningEnabled=false /p:AppxBundlePlatforms="$env:Appx_Bundle_Platforms"
+      run: msbuild $env:Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:AppxPackageSigningEnabled=false /p:AppxBundlePlatforms="$env:Appx_Bundle_Platforms"
       env:
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86|x64
         Appx_Package_Build_Mode: StoreUpload
         Configuration: ${{ matrix.configuration }}
-
-    - name: Send SonarCloud results
+        
+    - if: github.event_name == 'push'
+      name: Send SonarCloud results
       id: send_sonar_results
       env:
         GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
