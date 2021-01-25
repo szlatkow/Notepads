@@ -1,6 +1,8 @@
 name:  Build
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+  pull_request:
 
 jobs:
 
@@ -17,34 +19,34 @@ jobs:
     steps:
 
     - name: Set up JDK 11
-      id: Setup_JDK 
+      id: Setup_JDK
       uses: actions/setup-java@v1
       with:
         java-version: 1.11
+ 
     - uses: actions/checkout@v2
+      id: actions_checkout
       with:
         fetch-depth: 50
 
-    - if: github.event_name == 'push'
-      name: Cache SonarCloud packages
+    - name: Cache SonarCloud packages
       id: cache_sonar_packages
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: ~\sonar\cache
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
-    - if: github.event_name == 'push'
-      name: Cache SonarCloud scanner
+    - name: Cache SonarCloud scanner
       id: cache_sonar_scanner
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       with:
         path: .\.sonar\scanner
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
 
-    - if: github.event_name == 'push' && steps.cache_sonar_scanner.outputs.cache-hit != 'true'
-      name: Install SonarCloud scanner
+    - name: Install SonarCloud scanner
+      if: steps.cache_sonar_scanner.outputs.cache-hit != 'true'
       id: install_sonar_scanner
       shell: powershell
       run: |
@@ -59,11 +61,10 @@ jobs:
         $LOWERCASE_OWNER = "${{ github.repository_owner }}".ToLower()
         echo "::set-output name=owner_name::$LOWERCASE_OWNER"
 
-    - if: github.event_name == 'push'
-      name: Initialize SonarCloud scanner
+
+    - name: Initialize SonarCloud scanner
       id: init_sonar_scanner
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: powershell
       run: .\.sonar\scanner\dotnet-sonarscanner begin /k:"${{ github.repository_owner }}_${{ github.event.repository.name }}" /o:"${{ steps.lowercase_string_gen.outputs.owner_name }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
@@ -81,14 +82,13 @@ jobs:
 
     - name: Build
       id: build_app
-      run: |
-        msbuild $env:Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:AppxPackageSigningEnabled=false /p:AppxBundlePlatforms="$env:Appx_Bundle_Platforms"
+      run: msbuild $env:Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:AppxPackageSigningEnabled=false /p:AppxBundlePlatforms="$env:Appx_Bundle_Platforms"
       env:
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86|x64
         Appx_Package_Build_Mode: StoreUpload
         Configuration: ${{ matrix.configuration }}
-
+        
     - name: Send SonarCloud results
       id: send_sonar_results
       env:
