@@ -92,7 +92,5 @@ jobs:
     - if: github.event_name != 'pull_request'
       name: Send SonarCloud results
       id: send_sonar_results
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: powershell
       run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
