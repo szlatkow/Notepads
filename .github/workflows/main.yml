@@ -30,7 +30,7 @@ jobs:
     - if: github.event_name != 'pull_request'
       name: Cache SonarCloud packages
       id: cache_sonar_packages
-      uses: actions/cache@v2
+      uses: actions/cache@v2.1.4
       with:
         path: ~\sonar\cache
         key: ${{ runner.os }}-sonar
@@ -39,7 +39,7 @@ jobs:
     - if: github.event_name != 'pull_request'
       name: Cache SonarCloud scanner
       id: cache_sonar_scanner
-      uses: actions/cache@v2
+      uses: actions/cache@v2.1.4
       with:
         path: .\.sonar\scanner
         key: ${{ runner.os }}-sonar-scanner
