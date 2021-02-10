@@ -5,7 +5,7 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   ci:
     runs-on: windows-latest
-    outputs:
+    outputs: 
       new_version: ${{ steps.tag_generator.outputs.new_version }}    
     strategy:
       matrix:
