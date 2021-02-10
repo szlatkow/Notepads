@@ -2,7 +2,71 @@
 
 * after merging the PR, the first run of the main workflow will not complete successfully, because it requires specific setup explained in this documentation
 
-## *. Run workflow manually
+#
+## 1. Set up SonarCloud
+### SonarCloud is a cloud-based code quality and security service
+
+#### Create your SonarCloud project
+
+- Go to https://sonarcloud.io/
+
+- Click the "Log in" button and create a new account or connect with GitHub account (recommended)
+
+- At the top right corner click the "+" sign
+
+- From the dropdown select "Create new Organization"
+
+- Click the "Choose an organization on Github" button
+
+- Select an account for your organization setup
+
+- On Repository Access select "Only select repositories" and select the project and click the "Save" button
+
+- On the "Create organization page" don't change your Key and click "Continue"
+
+- Select the Free plan then click the "Create Organization" button to finalize the creation of your Organization
+
+#### Configure SonarCloud project
+
+- From the dropdown select "Analyze new project"
+
+- Select the project and click "Set Up" button at the top right corner
+
+- Under the "Choose another analysis method" sign click the "With Github Actions" sign
+
+- Copy the Name of the token and the Value and use them on step "16"
+
+- To Create a secret on GitHub click the fast forward button Settings>Secrets 
+
+- Then click "New Repository secret"
+
+- Enter the "Name" and the "Value" and click Add Secret
+
+- Go to https://github.com/settings/tokens and click " Personal access tokens"
+
+- Click on "Generate new token" set the name for the token and select **repo_deployment** and **read:packages**
+
+- Scroll down and select **Generate token**
+
+- Coppy the token and create another Secret
+
+- Set the name of the token **SONAR_GITHUB_TOKEN** and paste the value from the generated token
+
+- Run manually your workflow one time to deliver the code to SonarCloud
+   
+   NOTE: Make sure first run is completed successfully before proceeding
+
+#### Set Quality Gate
+
+- Go to the Project page
+
+- Click the "Set new code definition" button and select "Previous version"
+
+- Manually run the workflow and there you have set a Quality gate
+
+<br>
+
+## 2. Run workflow manually
 
 Once you've set up all the steps above correctly, you should be able to successfully complete a manual execution of the main workflow "Notepads CI/CD Pipeline".
 
@@ -20,11 +84,11 @@ NOTE: **screenshots are only exemplary**
 
 <br>
 
-## *. Set up Dependabot
+## 3. Set up Dependabot
 
-Dependabot is a GitHub native security tool that goes through the dependencies in your project and creates alerts, and PRs with updates when a new and/or non-vulnerable version is found.
+Dependabot is a GitHub native security tool that goes through the dependencies in the project and creates alerts, and PRs with updates when a new and/or non-vulnerable version is found.
 
-- for PRs with version updates, this pipeline comes pre-configured for all current dependency sources in your project, so at "Insights" tab -> "Dependency graph" -> "Dependabot", you should be able to see all tracked sources of dependencies, when they have been checked last and view a full log of the last check
+- for PRs with version updates, this pipeline comes pre-configured for all current dependency sources in the project, so at "Insights" tab -> "Dependency graph" -> "Dependabot", you should be able to see all tracked sources of dependencies, when they have been checked last and view a full log of the last check
 
 ![Dependabot_tab](/ScreenShots/CI-CD_DOCUMENTATION/Dependabot_tab.png)
 
@@ -39,7 +103,7 @@ Dependabot is a GitHub native security tool that goes through the dependencies i
 
 3. Click "Enable" for both "Dependabot alerts" and "Dependabot security updates"
 
-- By enabling "Dependabot alerts", you would be notified for any vulnerable dependencies in your project. At "Security" tab -> "Dependabot alerts", you can manage all alerts. By clicking on an alert, you would be able to see a detailed explanation of the vulnerability and a viable solution.
+- By enabling "Dependabot alerts", you would be notified for any vulnerable dependencies in the project. At "Security" tab -> "Dependabot alerts", you can manage all alerts. By clicking on an alert, you would be able to see a detailed explanation of the vulnerability and a viable solution.
 
 ![Dependabot_alerts_page](/ScreenShots/CI-CD_DOCUMENTATION/Dependabot_alerts_page.png)
 
@@ -66,7 +130,7 @@ NOTE: **screenshots are only exemplary**
 
 <br>
 
-## *. CodeQL
+## 4. CodeQL
 
 CodeQL is GitHub's own industry-leading semantic code analysis engine. CodeQL requires no setup, because it comes fully pre-configured by us. 
 
@@ -82,8 +146,10 @@ We've also configured CodeQL to run on schedule, so every day at 8:00AM UTC, it 
 
 ![CodeQL_alert_page](/ScreenShots/CI-CD_DOCUMENTATION/CodeQL_alert_page.png)
 
-### Code scanning alerts bulk dismissal
+### Code scanning alerts bulk dismissal tool
 ##### - currently, GitHub allows for only 25 code scanning alerts to be dismissed at a time. Sometimes, you might have hundreds you would like to dismiss, so you will have to click many times and wait for a long time to dismiss them. Via the "csa-bulk-dismissal.yml", you would be able to that with one click.
+
+NOTE: This tool executes manual **only**. It won't execute on any other GitHub event like push commit, PR creation etc.
 
 #### 1. Setup
 
@@ -151,7 +217,24 @@ We've also configured CodeQL to run on schedule, so every day at 8:00AM UTC, it 
 
 NOTE: "closed" refers to "dismissed" alerts
 
-NOTE: **screenshots are only exemplary**
+#### 3. Customization
+
+The "ALERT_DESC" strategy matrix in the pipeline, allows for more precise filtering of alerts to bulk dismiss. It uses the description of the alert to determine if it has to be dismissed or not. We've added the following alert descriptions by default:
+
+- "Calls to unmanaged code"
+- "Unmanaged code"
+
+To add more descriptions, follow these steps:
+
+1. In your source code, open ".github/workflows/csa-bulk-dismissal.yml"
+
+2. On line 11, notice "ALERT_DESC: ['"Calls to unmanaged code"', '"Unmanaged code"']". This is the array of descriptions that the CSABD (Code scanning alerts bulk dismissal) tool uses to filter through the alerts:
+
+![CSA_custom_1](/ScreenShots/CI-CD_DOCUMENTATION/CSA_custom_1.png)
+
+3. To add more descriptions use comma separation, followed by a single space and the description enclosed in double quotes, then enclosed in single quotes:
+
+![CSA_custom_2](/ScreenShots/CI-CD_DOCUMENTATION/CSA_custom_2.png)
 
 #
 ## Set up SonarCloud
@@ -213,4 +296,4 @@ NOTE: **screenshots are only exemplary**
 
 
 
-Built with ❤ by [Pipeline Foundation](http://pipeline.foundation)
+Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
