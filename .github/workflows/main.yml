@@ -137,7 +137,14 @@ jobs:
     steps:
       - name: Checkout repository
         id: checkout_repo
-        uses: actions/checkout@v2   
+        uses: actions/checkout@v2
+
+      - name: Download and extract test results artifact
+        id: dl_package_artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: MSIX Package
+          path: Artifacts/
 
       - name: Create and publish release
         id: create_release
@@ -156,7 +163,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ github.workspace }}/Artifacts 
+          asset_path: Artifacts/ 
           asset_name: MSIX Package ${{ env.NEW_VERSION }}
           asset_content_type: application/zip
 
