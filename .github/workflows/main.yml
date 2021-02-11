@@ -150,7 +150,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.NEW_TAG }}
-          release_name: Release ${{ env.NEW_TAG }}
+          release_name: Notepads ${{ env.NEW_TAG }}
           body: "[CHANGE LOG](HISTORY.md)"
 
       - name: Upload msixboundle as release asset
