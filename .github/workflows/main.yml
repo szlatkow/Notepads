@@ -6,10 +6,7 @@ jobs:
   ci:
     runs-on: windows-latest
     outputs: 
-      new_version: ${{ steps.tag_generator.outputs.new_version }}    
-    strategy:
-      matrix:
-        configuration: [Debug, Release]    
+      new_version: ${{ steps.tag_generator.outputs.new_version }}      
     env:
       Solution_Name: src\Notepads.sln
     
@@ -92,7 +89,7 @@ jobs:
         /t:Restore `
         /p:Configuration=$env:Configuration
       env:
-        Configuration: ${{ matrix.configuration }}
+        Configuration: Release
 
     - name: Build and generate bundles
       id: build_app
@@ -107,7 +104,7 @@ jobs:
         /p:AppxPackageDir=$env:Artifacts_Dir
       env:
         Platform: x64
-        Configuration: ${{ matrix.configuration }}
+        Configuration: Release
         Uap_Appx_Package_Build_Mode: StoreUpload
         Appx_Bundle: Always
         Appx_Package_Signing_Enabled: false
