@@ -167,18 +167,17 @@ jobs:
         with:
           tag_name: ${{ env.NEW_TAG }}
           release_name: Notepads ${{ env.NEW_TAG }}
-          body: "[CHANGE LOG](HISTORY.md)"
 
-      # - name: Upload msixboundle as release asset
-      #   id: upload_notepads_zip
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-      #     asset_path: Artifacts/Notepads_${{ env.NEW_VERSION }}_Test/Notepads_${{ env.NEW_VERSION }}_x86_x64.msixbundle
-      #     asset_name: Notepads_${{ env.NEW_VERSION }}_x86_x64.msixbundle
-      #     asset_content_type: application/zip
+      - name: Upload msixboundle as release asset
+        id: upload_notepads_zip
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Artifacts/Notepads_${{ env.NEW_VERSION }}_Test/Notepads_${{ env.NEW_VERSION }}_x86_x64.msixbundle
+          asset_name: Notepads_${{ env.NEW_VERSION }}_x86_x64.msixbundle
+          asset_content_type: application/zip
 
 
 # Built with ❤ by [Pipeline Foundation](https://pipeline.foundation)
