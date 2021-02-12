@@ -100,7 +100,8 @@ jobs:
         /p:AppxBundle=$env:Appx_Bundle `
         /p:AppxPackageSigningEnabled=$env:Appx_Package_Signing_Enabled `
         /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms `
-        /p:AppxPackageDir=$env:Artifacts_Dir
+        /p:AppxPackageDir=$env:Artifacts_Dir `
+        /p:Version=$env:Build_Version
       env:
         Platform: x64
         Configuration: Release
@@ -109,6 +110,7 @@ jobs:
         Appx_Package_Signing_Enabled: false
         Appx_Bundle_Platforms: x86|x64
         Artifacts_Dir: ${{ github.workspace }}/Artifacts
+        Build_Version: ${{ steps.tag_generator.outputs.new_version }}
 
     # - if: github.event_name != 'pull_request'
     #   name: Send SonarCloud results
@@ -163,8 +165,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Artifacts/Notepads_1.4.2.0_Test/Notepads_1.4.2.0_x86_x64.msixbundle
-          asset_name: Notepads_1.4.2.0_x86_x64.msixbundle
+          asset_path: Artifacts/Notepads_${{ env.NEW_VERSION }}_Test/Notepads_${{ env.NEW_VERSION }}_x86_x64.msixbundle
+          asset_name: Notepads_${{ env.NEW_VERSION }}_x86_x64.msixbundle
           asset_content_type: application/zip
 
 
