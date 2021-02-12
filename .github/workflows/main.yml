@@ -32,8 +32,8 @@ jobs:
       with:
         fetch-depth: 50
 
-#    - if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    - name: Bump release version and create release tag
+    - if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      name: Bump release version and create release tag
       id: tag_generator
       uses: mathieudutour/github-tag-action@v5
       with:
@@ -128,7 +128,7 @@ jobs:
       
   cd:
     # "This job will execute when the workflow is triggered on a 'push event', the target branch is 'master' and the commit is intended to be a release."
-#    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && needs.ci.outputs.new_version != ''
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && needs.ci.outputs.new_version != ''
     needs: ci
     runs-on: windows-latest
     env:
@@ -164,7 +164,7 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: Artifacts/Notepads_1.4.2.0_Test/Notepads_1.4.2.0_x86_x64.msixbundle
-          asset_name: MSIX Package ${{ env.NEW_VERSION }}
+          asset_name: Notepads_1.4.2.0_x86_x64.msixbundle
           asset_content_type: application/zip
 
 
