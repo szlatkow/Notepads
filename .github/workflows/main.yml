@@ -163,7 +163,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: \Notepads\Notepads\Artifacts\
+          asset_path: Artifacts/Notepads_1.4.2.0_Test/Notepads_1.4.2.0_x86_x64.msixbundle
           asset_name: MSIX Package ${{ env.NEW_VERSION }}
           asset_content_type: application/zip
 
